@@ -16,52 +16,7 @@
             color: #fff;
             overflow: hidden;
         }
-        .warning-screen {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(135deg, #ff0000 0%, #8b0000 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-        .warning-content {
-            text-align: center;
-            max-width: 500px;
-        }
-        .warning-content h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-            animation: shake 0.5s infinite;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        .warning-content p {
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-        .danger-btn {
-            padding: 20px 40px;
-            font-size: 24px;
-            font-weight: bold;
-            background: #ff0000;
-            color: white;
-            border: 3px solid #fff;
-            border-radius: 10px;
-            cursor: pointer;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
         .main-screen {
-            display: none;
             position: relative;
             height: 100vh;
         }
@@ -96,6 +51,7 @@
             font-weight: bold;
             text-align: center;
             animation: blink 0.5s infinite;
+            margin-top: 20px;
         }
         @keyframes blink {
             0%, 50% { opacity: 1; }
@@ -116,26 +72,12 @@
             z-index: 100;
             cursor: pointer;
         }
+        .stop-btn:hover {
+            background: #cc0000;
+        }
     </style>
 </head>
 <body>
-    <div class="warning-screen" id="warningScreen">
-        <div class="warning-content">
-            <h1>⚠️ 危険 ⚠️</h1>
-            <p>
-                このテストはデバイスに極限の負荷をかけます。<br><br>
-                <strong>・デバイスが非常に熱くなります</strong><br>
-                <strong>・バッテリーが急速に減少します</strong><br>
-                <strong>・動作が極端に遅くなります</strong><br>
-                <strong>・予期しない動作が発生する可能性があります</strong><br><br>
-                責任は負いかねます。続行しますか？
-            </p>
-            <button class="danger-btn" onclick="startExtreme()">
-                🔥 限界突破テスト開始 🔥
-            </button>
-        </div>
-    </div>
-
     <div class="main-screen" id="mainScreen">
         <canvas id="canvas1"></canvas>
         <canvas id="canvas2"></canvas>
@@ -150,9 +92,11 @@
                 <div class="stat-line">FPS: <span id="fps">0</span></div>
                 <div class="stat-line">経過時間: <span id="time">0</span>秒</div>
             </div>
-            <div class="critical" id="status"></div>
+            <div class="critical" id="status">🔥 限界突破テスト実行中 🔥</div>
         </div>
-        </div>
+        
+        <button class="stop-btn" onclick="stopExtreme()">⚠️ 緊急停止 ⚠️</button>
+    </div>
 
     <script>
         let workers = [];
@@ -162,10 +106,12 @@
         let memoryArrays = [];
         let animationFrames = [];
 
+        // ページ読み込み完了後すぐに開始
+        window.addEventListener('load', function() {
+            startExtreme();
+        });
+
         function startExtreme() {
-            document.getElementById('warningScreen').style.display = 'none';
-            document.getElementById('mainScreen').style.display = 'block';
-            
             isRunning = true;
             startTime = Date.now();
             
@@ -250,12 +196,10 @@
             }
             mainThreadHell();
             
-        
+            // Canvas設定
             setupCanvas('canvas1', 0);
             setupCanvas('canvas2', 120);
             setupCanvas('canvas3', 240);
-            setupCanvas('canvas4', 480);
-            setupCanvas('canvas5', 600);
             
             // 統計更新
             setInterval(updateStats, 100);
