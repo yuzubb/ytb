@@ -3,115 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ダウンロード - 極限CPUストレステスト</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #000 0%, #1a0000 50%, #000 100%);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            background: rgba(255, 0, 0, 0.1);
-            border: 3px solid #ff0000;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
-        }
-        h1 {
-            font-size: 28px;
-            color: #ff0000;
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 0 0 20px #ff0000;
-        }
-        p {
-            color: #fff;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-        .warning {
-            background: rgba(255, 100, 0, 0.2);
-            border: 2px solid #ff6600;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .warning-title {
-            color: #ff6600;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .download-btn {
-            display: block;
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(135deg, #ff0000, #cc0000);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 20px 0;
-            transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.5);
-        }
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(255, 0, 0, 0.8);
-        }
-        .info {
-            color: #aaa;
-            font-size: 14px;
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🔥 極限CPUストレステスト 🔥</h1>
-        <p>このボタンをクリックすると、HTML形式の極限ストレステストファイルがダウンロードされます。</p>
-        
-        <div class="warning">
-            <div class="warning-title">⚠️ 重要な注意事項</div>
-            <ul style="list-style: none; padding-left: 0;">
-                <li style="margin: 8px 0;">• ダウンロード後、ファイルを開く前に警告を必ず読んでください</li>
-                <li style="margin: 8px 0;">• 実行は完全に自己責任です</li>
-                <li style="margin: 8px 0;">• デバイスの損傷リスクがあります</li>
-                <li style="margin: 8px 0;">• バッテリー駆動時の実行は推奨しません</li>
-            </ul>
-        </div>
-        
-        <button class="download-btn" onclick="downloadFile()">
-            📥 extreme-stress-test.html をダウンロード
-        </button>
-        
-        <div class="info">
-            ファイルサイズ: 約20KB<br>
-            ファイル形式: HTML (ブラウザで直接開けます)
-        </div>
-    </div>
-
-    <script>
-        function downloadFile() {
-            const htmlContent = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚠️ EXTREME CPU STRESS TEST ⚠️</title>
+    <title>@</title>
     <style>
         * {
             margin: 0;
@@ -660,22 +552,6 @@
                     }
                 }, 5000);
             });
-        }
-    </script>
-</body>
-</html>`;
-
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'extreme-stress-test.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            alert('✅ ダウンロードが開始されました！\n\nファイルを開く前に必ず警告を読んでください。\n実行は完全に自己責任でお願いします。');
         }
     </script>
 </body>
