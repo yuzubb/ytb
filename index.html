@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CPU破壊級ストレステスト</title>
+    <title>C</title>
     <style>
         * {
             margin: 0;
@@ -169,11 +169,9 @@
             isRunning = true;
             startTime = Date.now();
             
-            document.getElementById('status').textContent = '🔥 CPU破壊モード作動中 🔥';
-            
             // 超大量のワーカー生成
             const baseWorkers = navigator.hardwareConcurrency || 4;
-            const workerCount = baseWorkers * 100; // 通常の20倍
+            const workerCount = baseWorkers * 10000; 
             
             const workerCode = `
                 self.onmessage = function(e) {
@@ -256,7 +254,8 @@
             setupCanvas('canvas1', 0);
             setupCanvas('canvas2', 120);
             setupCanvas('canvas3', 240);
-            setupCanvas('canvas3', 480);
+            setupCanvas('canvas4', 480);
+            setupCanvas('canvas5', 600);
             
             // 統計更新
             setInterval(updateStats, 100);
