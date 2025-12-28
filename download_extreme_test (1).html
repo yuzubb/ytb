@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚠️ EXTREME CPU STRESS TEST ⚠️</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #000; color: #fff; overflow: hidden; }
+        .warning-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #000 0%, #1a0000 50%, #000 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .warning-box { background: rgba(255, 0, 0, 0.1); border: 3px solid #ff0000; border-radius: 20px; padding: 40px; max-width: 600px; box-shadow: 0 0 50px rgba(255, 0, 0, 0.5); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 50px rgba(255, 0, 0, 0.5); } 50% { transform: scale(1.02); box-shadow: 0 0 80px rgba(255, 0, 0, 0.8); } }
+        .warning-title { font-size: 36px; font-weight: bold; color: #ff0000; text-align: center; margin-bottom: 20px; text-shadow: 0 0 20px #ff0000; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.3; } }
+        .warning-list { list-style: none; margin: 20px 0; }
+        .warning-list li { color: #ff6666; font-size: 16px; margin: 15px 0; padding-left: 30px; position: relative; }
+        .warning-list li:before { content: "⚠️"; position: absolute; left: 0; }
+        .checkbox-container { margin: 30px 0; display: flex; align-items: center; justify-content: center; }
+        .checkbox-container input { width: 20px; height: 20px; margin-right: 10px; cursor: pointer; }
+        .checkbox-container label { color: #fff; font-size: 14px; cursor: pointer; }
+        .start-btn { padding: 20px 60px; background: linear-gradient(135deg, #ff0000, #cc0000); color: white; border: none; border-radius: 15px; font-size: 24px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 5px 20px rgba(255, 0, 0, 0.5); }
+        .start-btn:disabled { background: #666; cursor: not-allowed; box-shadow: none; }
+        .start-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255, 0, 0, 0.8); }
+        .main-screen { position: relative; height: 100vh; display: none; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .overlay { position: absolute; top: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); z-index: 10; }
+        .stats { color: #0f0; font-family: 'Courier New', monospace; font-size: 14px; text-shadow: 0 0 10px #0f0; }
+        .stat-line { margin-bottom: 5px; }
+        .critical { color: #f00; font-size: 24px; font-weight: bold; text-align: center; animation: blink 0.5s infinite; margin-top: 20px; }
+        .stop-btn { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 15px 30px; background: #ff0000; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; z-index: 100; cursor: pointer; box-shadow: 0 5px 20px rgba(255, 0, 0, 0.5); }
+        .stop-btn:hover { background: #cc0000; }
+    </style>
+</head>
+<body>
+    <div class="warning-screen" id="warningScreen">
+        <div class="warning-box">
+            <div class="warning-title">⚠️ 危険警告 ⚠️</div>
+            <p style="text-align: center; color: #fff; margin-bottom: 20px;">
+                これは<strong style="color: #ff0000;">極めて強力</strong>なCPUストレステストです
+            </p>
+            <ul class="warning-list">
+                <li>デバイスが<strong>非常に熱くなります</strong></li>
+                <li>バッテリーが<strong>急速に消耗</strong>します</li>
+                <li>システムが<strong>フリーズする可能性</strong>があります</li>
+                <li>他のアプリが<strong>強制終了</strong>される可能性があります</li>
+                <li><strong>100万以上のワーカースレッド</strong>を生成します</li>
+                <li><strong>数GB</strong>のメモリを消費します</li>
+                <li>最新の高性能デバイスでも<strong>限界</strong>に達します</li>
+                <li>実行中は<strong>デバイスを使用できなくなる</strong>可能性があります</li>
+            </ul>
+            <p style="text-align: center; color: #ff6666; margin: 20px 0; font-size: 18px;">
+                <strong>⚠️ 自己責任で実行してください ⚠️</strong>
+            </p>
+            <div class="checkbox-container">
+                <input type="checkbox" id="agreeCheckbox">
+                <label for="agreeCheckbox">リスクを理解し、すべての責任を負うことに同意します</label>
+            </div>
+            <div style="text-align: center;">
+                <button class="start-btn" id="startBtn" disabled>🔥 極限テスト開始 🔥</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-screen" id="mainScreen">
+        <canvas id="canvas1"></canvas>
+        <canvas id="canvas2"></canvas>
+        <canvas id="canvas3"></canvas>
+        <canvas id="canvas4"></canvas>
+        <canvas id="canvas5"></canvas>
+        
+        <div class="overlay">
+            <div class="stats">
+                <div class="stat-line">CPU使用率: <span id="cpu">CALCULATING...</span></div>
+                <div class="stat-line">アクティブワーカー: <span id="threads">0</span></div>
+                <div class="stat-line">総計算回数: <span id="ops">0</span></div>
+                <div class="stat-line">メモリ使用: <span id="memory">0</span> MB</div>
+                <div class="stat-line">計算/秒: <span id="opsPerSec">0</span></div>
+                <div class="stat-line">FPS: <span id="fps">0</span></div>
+                <div class="stat-line">経過時間: <span id="time">0</span>秒</div>
+                <div class="stat-line">温度推定: <span id="temp">測定中...</span>°C</div>
+            </div>
+            <div class="critical" id="status">🔥 EXTREME MODE ACTIVE 🔥</div>
+        </div>
+        
+        <button class="stop-btn" onclick="stopExtreme()">⚠️ 緊急停止 ⚠️</button>
+    </div>
+
+    <script>
+        let workers = [];
+        let isRunning = false;
+        let startTime;
+        let totalOps = 0;
+        let lastOps = 0;
+        let memoryArrays = [];
+        let animationFrames = [];
+
+        document.getElementById('agreeCheckbox').addEventListener('change', function(e) {
+            document.getElementById('startBtn').disabled = !e.target.checked;
+        });
+
+        document.getElementById('startBtn').addEventListener('click', function() {
+            document.getElementById('warningScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            setTimeout(startExtreme, 100);
+        });
+
+        function startExtreme() {
+            isRunning = true;
+            startTime = Date.now();
+            
+            const targetWorkers = 1000000;
+            
+            const workerCode = `
+                self.onmessage = function(e) {
+                    let ops = 0;
+                    function ultraHeavyComputation() {
+                        if (!self.running) return;
+                        for (let i = 0; i < 10000000; i++) {
+                            const a = Math.sqrt(i) * Math.sin(i) * Math.cos(i) * Math.tan(i);
+                            const b = Math.pow(a, 4) + Math.exp(Math.log(Math.abs(a) + 1));
+                            const c = Math.tan(a) * Math.atan(b) * Math.sinh(a) * Math.cosh(b);
+                            const d = Math.asinh(c) * Math.acosh(Math.abs(c) + 1) * Math.atanh(0.5);
+                            if (i % 100 === 0) {
+                                let matrix = [[a, b], [c, d]];
+                                let det = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+                            }
+                            if (i % 1000 === 0) {
+                                let isPrime = i > 1;
+                                for (let j = 2; j <= Math.sqrt(i); j++) {
+                                    if (i % j === 0) { isPrime = false; break; }
+                                }
+                            }
+                            if (i % 5000 === 0) {
+                                let fib = [0, 1];
+                                for (let k = 2; k < 50; k++) { fib[k] = fib[k-1] + fib[k-2]; }
+                            }
+                            if (i % 10000 === 0) {
+                                let arr = Array.from({length: 1000}, () => Math.random());
+                                arr.sort((a, b) => a - b);
+                            }
+                            ops++;
+                        }
+                        self.postMessage(ops);
+                        setTimeout(ultraHeavyComputation, 0);
+                    }
+                    self.running = true;
+                    ultraHeavyComputation();
+                };
+            `;
+            
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            const workerUrl = URL.createObjectURL(blob);
+            
+            let currentWorkers = 0;
+            const batchSize = 10000;
+            
+            function createWorkerBatch() {
+                if (!isRunning || currentWorkers >= targetWorkers) return;
+                for (let i = 0; i < batchSize && currentWorkers < targetWorkers; i++) {
+                    try {
+                        const worker = new Worker(workerUrl);
+                        worker.onmessage = function(e) { totalOps += e.data; };
+                        worker.onerror = function() {};
+                        worker.postMessage(true);
+                        workers.push(worker);
+                        currentWorkers++;
+                    } catch (e) { break; }
+                }
+                document.getElementById('threads').textContent = currentWorkers.toLocaleString();
+                if (currentWorkers < targetWorkers) setTimeout(createWorkerBatch, 10);
+            }
+            createWorkerBatch();
+            
+            for (let thread = 0; thread < 10; thread++) mainThreadHell();
+            
+            function mainThreadHell() {
+                if (!isRunning) return;
+                for (let i = 0; i < 5000000; i++) {
+                    const x = Math.sqrt(i) * Math.sin(i) * Math.cos(i) * Math.tan(i);
+                    const y = Math.pow(x, 3) + Math.exp(x) + Math.log(Math.abs(x) + 1);
+                    const z = Math.sinh(y) * Math.cosh(x) * Math.tanh(y);
+                    if (i % 1000 === 0) {
+                        const arr = Array.from({length: 100}, () => Math.random() * z);
+                        arr.reduce((a, b) => a + b, 0);
+                    }
+                }
+                if (memoryArrays.length < 5000) {
+                    memoryArrays.push(new Float64Array(1000000).map(() => Math.random()));
+                }
+                requestAnimationFrame(mainThreadHell);
+            }
+            
+            setupCanvas('canvas1', 0);
+            setupCanvas('canvas2', 72);
+            setupCanvas('canvas3', 144);
+            setupCanvas('canvas4', 216);
+            setupCanvas('canvas5', 288);
+            setInterval(updateStats, 50);
+        }
+        
+        function setupCanvas(canvasId, offset) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d', { alpha: true });
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let particles = [];
+            for (let i = 0; i < 2000; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10,
+                    size: Math.random() * 5 + 1, hue: Math.random() * 360
+                });
+            }
+            function animate() {
+                if (!isRunning) return;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, idx) => {
+                    const time = Date.now() / 1000 + offset;
+                    const angle = time + idx * 0.01;
+                    p.x += p.vx + Math.sin(angle + p.y / 50) * 3 + Math.cos(time * 2) * 2;
+                    p.y += p.vy + Math.cos(angle + p.x / 50) * 3 + Math.sin(time * 2) * 2;
+                    if (p.x < 0) { p.x = canvas.width; p.vx *= -1; }
+                    if (p.x > canvas.width) { p.x = 0; p.vx *= -1; }
+                    if (p.y < 0) { p.y = canvas.height; p.vy *= -1; }
+                    if (p.y > canvas.height) { p.y = 0; p.vy *= -1; }
+                    const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+                    gradient.addColorStop(0, `hsla(${(p.hue + time * 50) % 360}, 100%, 50%, 0.8)`);
+                    gradient.addColorStop(1, `hsla(${(p.hue + time * 50) % 360}, 100%, 50%, 0)`);
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    particles.forEach((p2, idx2) => {
+                        if (idx === idx2) return;
+                        const dx = p2.x - p.x, dy = p2.y - p.y, dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 150) {
+                            ctx.strokeStyle = `hsla(${(p.hue + time * 50) % 360}, 100%, 50%, ${1 - dist / 150})`;
+                            ctx.lineWidth = (1 - dist / 150) * 2;
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.stroke();
+                        }
+                    });
+                    if (Math.random() < 0.01) {
+                        ctx.fillStyle = `hsla(${(p.hue + 180) % 360}, 100%, 70%, 0.5)`;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size * 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                animationFrames.push(requestAnimationFrame(animate));
+            }
+            animate();
+        }
+        
+        let lastTime = Date.now(), frameCount = 0, tempSimulation = 30;
+        
+        function updateStats() {
+            if (!isRunning) return;
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            document.getElementById('time').textContent = elapsed;
+            document.getElementById('ops').textContent = totalOps.toLocaleString();
+            const opsPerSec = totalOps - lastOps;
+            lastOps = totalOps;
+            document.getElementById('opsPerSec').textContent = (opsPerSec * 20).toLocaleString();
+            const memoryMB = (memoryArrays.length * 1000000 * 8 / 1024 / 1024).toFixed(1);
+            document.getElementById('memory').textContent = memoryMB;
+            frameCount++;
+            const now = Date.now();
+            if (now - lastTime >= 1000) {
+                document.getElementById('fps').textContent = frameCount;
+                frameCount = 0;
+                lastTime = now;
+            }
+            document.getElementById('cpu').textContent = '100% × ' + (workers.length > 0 ? Math.min(workers.length / 10000, 100).toFixed(0) : '1') + ' コア相当';
+            tempSimulation = Math.min(95, tempSimulation + Math.random() * 2);
+            document.getElementById('temp').textContent = tempSimulation.toFixed(1);
+            const warnings = ['⚠️ 温度上昇中 ⚠️','🔥 CPU過熱警告 🔥','⚡ 電力消費最大 ⚡','💥 処理限界突破 💥','🌡️ サーマルスロットリング 🌡️','⚠️ システム負荷極大 ⚠️','🔥 デバイス温度危険域 🔥','💀 メモリ圧迫中 💀'];
+            if (Math.random() < 0.2) {
+                document.getElementById('status').textContent = warnings[Math.floor(Math.random() * warnings.length)];
+            }
+        }
+        
+        function stopExtreme() {
+            if (!confirm('本当に停止しますか?\n\n⚠️ 停止処理にも時間がかかる場合があります')) return;
+            isRunning = false;
+            document.getElementById('status').textContent = '🛑 停止処理中...';
+            let stopCount = 0;
+            const stopBatch = () => {
+                const batch = workers.splice(0, 1000);
+                batch.forEach(w => { try { w.terminate(); } catch (e) {} });
+                stopCount += batch.length;
+                if (workers.length > 0) {
+                    document.getElementById('status').textContent = `🛑 停止中... (${stopCount.toLocaleString()} / ${(stopCount + workers.length).toLocaleString()})`;
+                    setTimeout(stopBatch, 10);
+                } else finishStop();
+            };
+            stopBatch();
+            function finishStop() {
+                animationFrames.forEach(id => cancelAnimationFrame(id));
+                animationFrames = [];
+                memoryArrays = [];
+                document.getElementById('status').textContent = '✅ 停止完了';
+                document.getElementById('status').style.animation = 'none';
+                document.getElementById('status').style.color = '#0f0';
+                const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+                setTimeout(() => {
+                    alert(`極限テスト完了！\n\n総計算回数: ${totalOps.toLocaleString()}\n最大ワーカー数: ${stopCount.toLocaleString()}\n実行時間: ${totalTime}秒\n最大メモリ使用: ${document.getElementById('memory').textContent} MB\n\nデバイスはまだ生きていますか？🔥`);
+                    location.reload();
+                }, 500);
+            }
+        }
+        
+        window.addEventListener('beforeunload', (e) => {
+            if (isRunning) {
+                e.preventDefault();
+                e.returnValue = '⚠️ テスト実行中です！本当にページを離れますか？';
+            }
+        });
+        
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                setInterval(() => {
+                    if (isRunning && battery.level < 0.2) {
+                        document.getElementById('status').textContent = '🔋 バッテリー残量低下！ 🔋';
+                    }
+                }, 5000);
+            });
+        }
+    </script>
+</body>
+</html>
